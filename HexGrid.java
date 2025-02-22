@@ -226,12 +226,38 @@ public class HexGrid extends Application {
             }
         }
 
+        Sphere sphere = new Sphere(18);
+        PhongMaterial material = new PhongMaterial();
+        material.setDiffuseColor(Color.RED);
+        sphere.setMaterial(material);
+        sphere.setTranslateX(70);
+        sphere.setTranslateY(550);
+        root.getChildren().add(sphere);
+
         Text title = new Text("HexOust");
         title.setFill(Color.LIGHTGREEN);
         title.setFont(Font.font("Arial", 30));
         title.setTranslateX(240);
         title.setTranslateY(40);
         root.getChildren().add(title);
+
+        Text text = new Text("To make a move");
+        text.setFill(Color.BLACK);
+        text.setFont(Font.font("Arial", 25));
+        text.setTranslateX(100);
+        text.setTranslateY(560);
+        root.getChildren().add(text);
+
+        Button exit = new Button("Exit");
+        exit.setTranslateX(500);
+        exit.setTranslateY(540);
+        root.getChildren().add(exit);
+
+        exit.setOnAction(event -> {
+            System.out.println("Closing HexOust");
+            Platform.exit();
+        });
+
     }
 
     private Polygon createHexagon(ArrayList<Point> corners) {
