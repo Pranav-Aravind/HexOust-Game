@@ -13,6 +13,10 @@ import javafx.scene.control.Button;
 
 import java.awt.*;
 import java.util.ArrayList;
+import javafx.scene.effect.DropShadow;
+
+
+
 
 class Point
 {
@@ -198,18 +202,26 @@ public class HexGrid extends Application {
     @Override
     public void start(Stage stage) {
         Group root = new Group();
-        Scene scene = new Scene(root, 600, 600, Color.WHITE);
+        Scene scene = new Scene(root, 700, 700, Color.WHITE);
         stage.setTitle("HexOust");
         stage.setScene(scene);
         stage.show();
 
-        double size = 20;
-        double originX = 300;
-        double originY = 300;
+        DropShadow glow = new DropShadow();
+        glow.setColor(Color.BROWN);
+        glow.setRadius(10);
+
+        double size = 25;
+        double originX = 350;
+        double originY = 360;
 
         Layout layout = new Layout(Layout.flat, new Point(size, size), new Point(originX, originY));
 
         int baseN = 6;
+
+
+        final Polygon[] selectedHexagon = {null};
+
         for (int q = -baseN; q <= baseN; q++) {
             for (int r = -baseN; r <= baseN; r++) {
                 for (int s = -baseN; s <= baseN; s++) {
@@ -218,39 +230,68 @@ public class HexGrid extends Application {
                         ArrayList<Point> corners = layout.polygonCorners(hex);
                         Polygon hexagon = createHexagon(corners);
 
-                        hexagon.setFill(Color.color(1, 1, 1));
+                        hexagon.setFill(Color.WHITE);
                         hexagon.setStroke(Color.BLACK);
+
+                        // Hover Effect
+                        hexagon.setOnMouseEntered(event -> {
+                            if (selectedHexagon[0] != hexagon){
+                                hexagon.setFill(Color.YELLOW);
+                                hexagon.setEffect(glow);
+                            }
+
+                        });
+                        hexagon.setOnMouseExited(event -> {
+                            hexagon.setEffect(null);
+                            if (selectedHexagon[0] != hexagon) {
+                                hexagon.setFill(Color.WHITE);
+                            }
+                        });
+
+                        hexagon.setOnMouseClicked(event -> {
+                            if (selectedHexagon[0] != null) {
+                                selectedHexagon[0].setFill(Color.WHITE);
+                            }
+                            hexagon.setFill(Color.RED);
+                            selectedHexagon[0] = hexagon;
+                        });
+
                         root.getChildren().add(hexagon);
                     }
                 }
             }
         }
 
-        Sphere sphere = new Sphere(18);
+
+
+        Sphere sphere = new Sphere(13);
         PhongMaterial material = new PhongMaterial();
         material.setDiffuseColor(Color.RED);
         sphere.setMaterial(material);
         sphere.setTranslateX(70);
-        sphere.setTranslateY(550);
+        sphere.setTranslateY(650);
         root.getChildren().add(sphere);
 
         Text title = new Text("HexOust");
-        title.setFill(Color.LIGHTGREEN);
-        title.setFont(Font.font("Arial", 30));
-        title.setTranslateX(240);
-        title.setTranslateY(40);
+        title.setFill(Color.BLACK);
+        title.setFont(Font.font("Stencil", 35));
+        title.setTranslateX(275);
+        title.setTranslateY(50);
         root.getChildren().add(title);
+
+
 
         Text text = new Text("To make a move");
         text.setFill(Color.BLACK);
-        text.setFont(Font.font("Arial", 25));
-        text.setTranslateX(100);
-        text.setTranslateY(560);
+        text.setFont(Font.font("Arial", 20));
+        text.setTranslateX(90);
+        text.setTranslateY(660);
         root.getChildren().add(text);
 
         Button exit = new Button("Exit");
-        exit.setTranslateX(500);
-        exit.setTranslateY(540);
+        exit.setTranslateX(620);
+        exit.setTranslateY(10);
+        exit.setPrefSize(70, 30);
         root.getChildren().add(exit);
 
         exit.setOnAction(event -> {
