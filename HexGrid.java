@@ -201,26 +201,57 @@ class Layout
 public class HexGrid extends Application {
     @Override
     public void start(Stage stage) {
+        Label label_size = new Label();
         Group root = new Group();
         Scene scene = new Scene(root, 700, 700, Color.WHITE);
         stage.setTitle("HexOust");
         stage.setScene(scene);
         stage.show();
 
+        // Call method to draw hex grid dynamically, including UI elements
+        updateUI(root, scene);
+
+        scene.widthProperty().addListener((obs, oldVal, newVal) -> updateUI(root, scene));
+        scene.heightProperty().addListener((obs, oldVal, newVal) -> updateUI(root, scene));
+
+
+        double size = 25;
+        double originX = scene.getWidth()/2;
+        double originY = scene.getHeight()/2;
+
+        Layout layout = new Layout(Layout.flat, new Point(size, size), new Point(originX, originY));
+
+
+    }
+
+    private Polygon createHexagon(ArrayList<Point> corners) {
+        Polygon hex = new Polygon();
+        for (Point p : corners) {
+            hex.getPoints().addAll(p.x, p.y);
+        }
+        return hex;
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    private void updateUI(Group root, Scene scene) {
+        double size = 25;
+        double originX = scene.getWidth() / 2;
+        double originY = scene.getHeight() / 2;
+
         DropShadow glow = new DropShadow();
         glow.setColor(Color.BROWN);
         glow.setRadius(10);
 
-        double size = 25;
-        double originX = 350;
-        double originY = 360;
-
-        Layout layout = new Layout(Layout.flat, new Point(size, size), new Point(originX, originY));
-
-        int baseN = 6;
-
-
         final Polygon[] selectedHexagon = {null};
+
+        root.getChildren().clear(); // Clear everything before re-adding
+
+        // --- HEX GRID ---
+        Layout layout = new Layout(Layout.flat, new Point(size, size), new Point(originX, originY));
+        int baseN = 6;
 
         for (int q = -baseN; q <= baseN; q++) {
             for (int r = -baseN; r <= baseN; r++) {
@@ -237,6 +268,9 @@ public class HexGrid extends Application {
                         hexagon.setOnMouseEntered(event -> {
                             if (selectedHexagon[0] != hexagon){
                                 hexagon.setFill(Color.YELLOW);
+                                hexagon.setEffect(glow);
+                            }
+                            else{
                                 hexagon.setEffect(glow);
                             }
 
@@ -262,54 +296,41 @@ public class HexGrid extends Application {
             }
         }
 
+        // --- TITLE ---
+        Text title = new Text("HexOust");
+        title.setFill(Color.BLACK);
+        title.setFont(Font.font("Consolas", 35));
+        title.setTranslateX(scene.getWidth() / 2 - 72); // Centering dynamically
+        title.setTranslateY(50);
+        root.getChildren().add(title);
 
+        // --- INSTRUCTIONS TEXT ---
+        Text text = new Text("To make a move");
+        text.setFill(Color.BLACK);
+        text.setFont(Font.font("Arial", 20));
+        text.setTranslateX(scene.getWidth() / 6 - 30); // Adjust dynamically
+        text.setTranslateY(scene.getHeight() - 40);
+        root.getChildren().add(text);
 
+        // --- BALL (SPHERE) ---
         Sphere sphere = new Sphere(13);
         PhongMaterial material = new PhongMaterial();
         material.setDiffuseColor(Color.RED);
         sphere.setMaterial(material);
-        sphere.setTranslateX(70);
-        sphere.setTranslateY(650);
+        sphere.setTranslateX(scene.getWidth() * 0.1);  // 10% from left
+        sphere.setTranslateY(scene.getHeight() - 50); // Near bottom
         root.getChildren().add(sphere);
 
-        Text title = new Text("HexOust");
-        title.setFill(Color.BLACK);
-        title.setFont(Font.font("Stencil", 35));
-        title.setTranslateX(275);
-        title.setTranslateY(50);
-        root.getChildren().add(title);
-
-
-
-        Text text = new Text("To make a move");
-        text.setFill(Color.BLACK);
-        text.setFont(Font.font("Arial", 20));
-        text.setTranslateX(90);
-        text.setTranslateY(660);
-        root.getChildren().add(text);
-
+        // --- EXIT BUTTON ---
         Button exit = new Button("Exit");
-        exit.setTranslateX(620);
-        exit.setTranslateY(10);
         exit.setPrefSize(70, 30);
-        root.getChildren().add(exit);
-
+        exit.setTranslateX(scene.getWidth() - 80); // Position at top-right dynamically
+        exit.setTranslateY(10);
         exit.setOnAction(event -> {
             System.out.println("Closing HexOust");
             Platform.exit();
         });
-
+        root.getChildren().add(exit);
     }
 
-    private Polygon createHexagon(ArrayList<Point> corners) {
-        Polygon hex = new Polygon();
-        for (Point p : corners) {
-            hex.getPoints().addAll(p.x, p.y);
-        }
-        return hex;
-    }
-
-    public static void main(String[] args) {
-        launch(args);
-    }
 }
