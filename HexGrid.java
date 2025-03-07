@@ -129,8 +129,15 @@ public class HexGrid extends Application {
                         if (playerTurn == 1) {
                             hex.colour = 1;
                             hexagon.setFill(javafx.scene.paint.Color.RED);
+                            setPlayerTurn(2);
+                            material.setDiffuseColor(Color.BLUE);
+                            sphere.setMaterial(material);
                         } else {
                             hex.colour = 2;
+                            hexagon.setFill(javafx.scene.paint.Color.BLUE);
+                            setPlayerTurn(1);
+                            material.setDiffuseColor(Color.RED);
+                            sphere.setMaterial(material);
                         }
                         selectedHexagon[0] = hexagon;
                     }
@@ -143,7 +150,14 @@ public class HexGrid extends Application {
         // --- BALL (SPHERE) ---
         sphere = new Sphere(13);
         material = new PhongMaterial();
-        material.setDiffuseColor(Color.RED);
+        if (playerTurn==1)
+        {
+            material.setDiffuseColor(Color.RED);
+        }
+        else
+        {
+            material.setDiffuseColor(Color.BLUE);
+        }
         sphere.setMaterial(material);
         sphere.setTranslateX(scene.getWidth() * 0.1);  // 10% from left
         sphere.setTranslateY(scene.getHeight() - 50); // Near bottom
@@ -157,6 +171,7 @@ public class HexGrid extends Application {
         title.setTranslateY(50);
         root.getChildren().add(title);
 
+
         // --- INSTRUCTIONS TEXT ---
         Text text = new Text("To make a move");
         text.setFill(javafx.scene.paint.Color.BLACK);
@@ -164,6 +179,8 @@ public class HexGrid extends Application {
         text.setTranslateX(scene.getWidth() / 6 - 30); // Adjust dynamically
         text.setTranslateY(scene.getHeight() - 40);
         root.getChildren().add(text);
+
+
 
         // --- EXIT BUTTON ---
         javafx.scene.control.Button exit = new javafx.scene.control.Button("Exit");
@@ -175,5 +192,7 @@ public class HexGrid extends Application {
             Platform.exit();
         });
         root.getChildren().add(exit);
+        
     }
+
 }
