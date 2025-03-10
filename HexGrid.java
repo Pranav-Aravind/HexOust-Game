@@ -64,9 +64,25 @@ public class HexGrid extends Application {
         launch(args);
     }
 
-    public int validateMove(HexCube hex) {
+    private void showInvalidMove(Text invalidMoveText) {
+        invalidMoveText.setVisible(true);
+
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+            invalidMoveText.setVisible(false);
+        }));
+        timeline.setCycleCount(1);
+        timeline.play();
+    }
+
+
+    public int validateMove(HexCube hex, Text invalidMoveText) {
+        if(hex.colour != 0) {
+            showInvalidMove(invalidMoveText);
+            return 0;
+        }
         for(HexCube neighbour : hex.getNeighbours(hexs)) {
             if(neighbour.colour == playerTurn) {
+                showInvalidMove(invalidMoveText);
                 return 0;
             }
         }
@@ -90,6 +106,16 @@ public class HexGrid extends Application {
         // --- HEX GRID ---
         Layout layout = new Layout(Layout.flat, new Point(size, size), new Point(originX, originY));
         int baseN = 6;
+
+        // --- INVALID MOVE TEXT ---
+        Text invalidMoveText = new Text("Invalid Move!");
+        invalidMoveText.setFill(Color.PURPLE);
+        invalidMoveText.setFont(Font.font("Arial", 20));
+        invalidMoveText.setTranslateX(scene.getWidth() / 2 - 60);  // Centering dynamically
+        invalidMoveText.setTranslateY(scene.getHeight() - 45);
+        invalidMoveText.setVisible(false); // Initially hidden
+
+        root.getChildren().add(invalidMoveText);
 
         // Create a map to quickly check existing hexagons by their (q, r, s) coordinates
         HashMap<String, HexCube> hexMap = new HashMap<>();
@@ -124,8 +150,28 @@ public class HexGrid extends Application {
 
                 hexagon.setStroke(javafx.scene.paint.Color.BLACK);
 
+
+
+                // Hover Effect
+//                hexagon.setOnMouseEntered(event -> hexagon.setEffect(glow));
+//                hexagon.setOnMouseExited(event -> hexagon.setEffect(null));
+
+                hexagon.setOnMouseEntered(event -> {
+                    if (hex.colour == 0) { // Only change color if the hexagon is uncolored
+                        hexagon.setFill(Color.LIGHTGRAY); // Highlight effect
+                    }
+                    hexagon.setEffect(glow);
+                });
+
+                hexagon.setOnMouseExited(event -> {
+                    hexagon.setEffect(null);
+                    if (hex.colour == 0) { // Only reset color if it's uncolored
+                        hexagon.setFill(Color.WHITE);
+                    }
+                });
+
                 hexagon.setOnMouseClicked(event -> {
-                    if (validateMove(hex) == 1) {
+                    if (validateMove(hex, invalidMoveText) == 1) {
                         if (playerTurn == 1) {
                             hex.colour = 1;
                             hexagon.setFill(javafx.scene.paint.Color.RED);
@@ -150,12 +196,10 @@ public class HexGrid extends Application {
         // --- BALL (SPHERE) ---
         sphere = new Sphere(13);
         material = new PhongMaterial();
-        if (playerTurn==1)
-        {
+        if (playerTurn==1){
             material.setDiffuseColor(Color.RED);
         }
-        else
-        {
+        else{
             material.setDiffuseColor(Color.BLUE);
         }
         sphere.setMaterial(material);
@@ -170,7 +214,6 @@ public class HexGrid extends Application {
         title.setTranslateX(scene.getWidth() / 2 - 60); // Centering dynamically
         title.setTranslateY(50);
         root.getChildren().add(title);
-
 
         // --- INSTRUCTIONS TEXT ---
         Text text = new Text("To make a move");
@@ -192,7 +235,6 @@ public class HexGrid extends Application {
             Platform.exit();
         });
         root.getChildren().add(exit);
-        
     }
 
 }
