@@ -2,15 +2,12 @@ import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Sphere;
 import javafx.scene.text.Text;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -27,26 +24,6 @@ public class HexGridTest {
         }
     }
 
-//    @Test
-//    void testExitButtonPrintsClosingHexOust() {
-//        // Arrange
-//        Button exitButton = new Button("Exit");
-//        HexGrid.exitFunction(exitButton);
-//
-//        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//        PrintStream originalOut = System.out;
-//        System.setOut(new PrintStream(outputStream));
-//
-//        // Act
-//        exitButton.fire();
-//
-//        // Restore output
-//        System.setOut(originalOut);
-//        String output = outputStream.toString().trim();
-//
-//        // Assert
-//        assertTrue(output.contains("Closing HexOust"), "Exit button should print 'Closing HexOust'");
-//    }
     @Test
     void testValidateMoveFunctionClickingSameStoneTwice() throws Exception {
         // Arrange
@@ -92,5 +69,76 @@ public class HexGridTest {
         // Assert
         assertTrue(invalidMoveText.isVisible(), "\"Invalid Move!\" should be printed");
     }
-    
+
+
+    @Test
+    void testSetPlayerTurnNCP() throws Exception {
+        HexGrid game = new HexGrid();
+        HexCube hex = new HexCube(0, 0, 0, 0, 0);  // Start uncolored
+        Text invalidMoveText = new Text("Invalid Move!");
+
+        // Simulate internal hexs list
+        var field = game.getClass().getDeclaredField("hexs");
+        field.setAccessible(true);
+        var turn = game.getClass().getDeclaredField("playerTurn");
+        turn.setAccessible(true);
+        var function= game.getClass().getDeclaredMethod("setPlayerTurn",int.class);
+        function.setAccessible(true);
+        ArrayList<HexCube> hexList = new ArrayList<>();
+        hexList.add(hex);
+        field.set(game, hexList);
+
+        // Act
+        int firstClick = game.validateMove(hex, invalidMoveText, true);
+        hex.colour = 1;
+        game.setPlayerTurn(2);
+        assertEquals(2, (int)turn.get(game));
+
+
+    }
+
+    @Test
+    void testSphereColorChangesWithPlayerTurnAndInstructionTextExists() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        Platform.runLater(() -> {
+            try {
+                HexGrid game = new HexGrid();
+                Group root = new Group();
+                Scene scene = new Scene(root, 700, 700);
+
+                game.setPlayerTurn(1); // Force playerTurn to 1
+
+                // Use reflection to call private updateUI(Group, Scene)
+                var updateUIMethod = HexGrid.class.getDeclaredMethod("updateUI", Group.class, Scene.class);
+                updateUIMethod.setAccessible(true);
+                updateUIMethod.invoke(game, root, scene);
+
+                // Find the sphere and assert its color
+                Sphere sphere = (Sphere) root.getChildren().stream()
+                        .filter(node -> node instanceof Sphere)
+                        .findFirst()
+                        .orElse(null);
+
+                assertNotNull(sphere, "Sphere should exist");
+                PhongMaterial material = (PhongMaterial) sphere.getMaterial();
+                assertEquals(Color.RED, material.getDiffuseColor(), "Sphere should be red when playerTurn == 1");
+
+                // Check that "To make a move" text is present
+                boolean instructionFound = root.getChildren().stream()
+                        .filter(node -> node instanceof Text)
+                        .map(node -> ((Text) node).getText())
+                        .anyMatch(text -> text.equals("To make a move"));
+
+                assertTrue(instructionFound, "Instruction text 'To make a move' should exist");
+
+            } catch (Exception e) {
+                fail("Exception occurred: " + e.getMessage());
+            } finally {
+                latch.countDown();
+            }
+        });
+
+        assertTrue(latch.await(5, TimeUnit.SECONDS), "Test timed out waiting for JavaFX thread");
+    }
 }
