@@ -24,6 +24,7 @@ public class HexGrid extends Application {
     private Sphere sphere; // Store sphere as instance variable
     private PhongMaterial material; // Store material for updates
     boolean isCapture=false;
+    boolean isSelfCapture = false;
 
     public void setPlayerTurn(int player) {
         playerTurn = player;
@@ -90,13 +91,13 @@ public class HexGrid extends Application {
         }
 
         hex.colour = playerTurn;
-        ArrayList<HexCube> playerGroup = checkGroupSize(hex, hexs);
+        ArrayList<HexCube> playerGroup = checkGroup(hex, hexs);
         hex.colour = 0;
 
         for(HexCube playerStone : playerGroup) {
             for(HexCube neighbour : playerStone.getNeighbours(hexs)) {
                 if (neighbour.colour != 0 && neighbour.colour != playerTurn) {
-                    ArrayList<HexCube> group = checkGroupSize(neighbour, hexs);
+                    ArrayList<HexCube> group = checkGroup(neighbour, hexs);
                     if (!opponentGroups.contains(group)) {
                         opponentGroups.add(group);
                     }
@@ -110,7 +111,11 @@ public class HexGrid extends Application {
                     opponentStone.colour = 0;
                 }
                 isCapture= true;
-
+            } else if (playerGroup.size() < opponentGroup.size()) {
+                for(HexCube playerStone : playerGroup) {
+                    playerStone.colour = 0;
+                }
+                isSelfCapture = true;
             }
         }
         if(isTouchingOwnGroup && !isCapture) {
@@ -120,17 +125,17 @@ public class HexGrid extends Application {
         return 1;
     }
 
-    public ArrayList<HexCube> checkGroupSize(HexCube hex, ArrayList<HexCube> hexList) {
+    public ArrayList<HexCube> checkGroup(HexCube hex, ArrayList<HexCube> hexList) {
         ArrayList<HexCube> group = new ArrayList<>();
 
         if (hex == null || hex.colour == 0) return group; // Ignore uncolored hexagons
 
         boolean[] visited = new boolean[hexList.size()]; // Track visited hexagons
-        checkGroupSizeUtil(hex, hexList, visited, group);
+        checkGroupUtil(hex, hexList, visited, group);
         return group;
     }
 
-    private int checkGroupSizeUtil(HexCube hex, ArrayList<HexCube> hexList, boolean[] visited, ArrayList<HexCube> group) {
+    private int checkGroupUtil(HexCube hex, ArrayList<HexCube> hexList, boolean[] visited, ArrayList<HexCube> group) {
         int index = hexList.indexOf(hex);
         if (index == -1 || visited[index]) return 0; // Prevent revisiting
 
@@ -141,7 +146,7 @@ public class HexGrid extends Application {
 
         for (HexCube neighbor : hex.getNeighbours(hexList)) {
             if (neighbor.colour == hex.colour && !visited[hexList.indexOf(neighbor)]) {
-                groupSize += checkGroupSizeUtil(neighbor, hexList, visited, group);
+                groupSize += checkGroupUtil(neighbor, hexList, visited, group);
             }
         }
         return groupSize;
@@ -214,6 +219,9 @@ public class HexGrid extends Application {
                 hexagon.setOnMouseClicked(event -> {
                     if (validateMove(hex, invalidMoveText, true) == 1) {
                         if (playerTurn == 1) {
+                            if (isSelfCapture) {
+                                hex.colour = 0;
+                            } else {
                                 hex.colour = 1;
                                 hexagon.setFill(javafx.scene.paint.Color.RED);
                             }
@@ -224,8 +232,12 @@ public class HexGrid extends Application {
                             material.setDiffuseColor(Color.BLUE);
                             sphere.setMaterial(material);
                         } else {
+                            if (isSelfCapture) {
+                                hex.colour = 0;
+                            } else {
                                 hex.colour = 2;
                                 hexagon.setFill(javafx.scene.paint.Color.BLUE);
+                            }
 
                             if (!isCapture) {
                                 setPlayerTurn(1);
@@ -234,7 +246,9 @@ public class HexGrid extends Application {
                             sphere.setMaterial(material);
                         }
                         isCapture = false;
+                        isSelfCapture = false;
                         updateUI((Group) sphere.getParent(), sphere.getScene());
+                    }
                 });
                 root.getChildren().add(hexagon);
             }
