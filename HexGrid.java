@@ -1,4 +1,3 @@
-package HexGrid;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
@@ -14,7 +13,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +23,7 @@ public class HexGrid extends Application {
     int playerTurn = 1;
     private Sphere sphere; // Store sphere as instance variable
     private PhongMaterial material; // Store material for updates
+    boolean isCapture=false;
 
     public void setPlayerTurn(int player) {
         playerTurn = player;
@@ -75,7 +74,6 @@ public class HexGrid extends Application {
         timeline.play();
     }
 
-
     public int validateMove(HexCube hex, Text invalidMoveText, boolean showMessage) {
         if (hex.colour != 0) {
             if (showMessage) showInvalidMove(invalidMoveText);
@@ -83,72 +81,71 @@ public class HexGrid extends Application {
         }
 
         boolean isTouchingOwnGroup = false;
-        ArrayList<Integer> opponentGroupSizes = new ArrayList<>();
-
+        ArrayList<ArrayList<HexCube>> opponentGroups = new ArrayList<>();
 
         for (HexCube neighbour : hex.getNeighbours(hexs)) {
             if (neighbour.colour == playerTurn) {
                 isTouchingOwnGroup = true;
-            } else if (neighbour.colour != 0 && neighbour.colour != playerTurn) {
-                int groupSize = checkGroupSize(neighbour, hexs);
-                if (!opponentGroupSizes.contains(groupSize)) {
-                    opponentGroupSizes.add(groupSize);
+            }
+        }
+
+        hex.colour = playerTurn;
+        ArrayList<HexCube> playerGroup = checkGroupSize(hex, hexs);
+        hex.colour = 0;
+
+        for(HexCube playerStone : playerGroup) {
+            for(HexCube neighbour : playerStone.getNeighbours(hexs)) {
+                if (neighbour.colour != 0 && neighbour.colour != playerTurn) {
+                    ArrayList<HexCube> group = checkGroupSize(neighbour, hexs);
+                    if (!opponentGroups.contains(group)) {
+                        opponentGroups.add(group);
+                    }
                 }
             }
         }
 
+        for (ArrayList<HexCube> opponentGroup : opponentGroups) {
+            if (playerGroup.size() > opponentGroup.size()) {
+                for(HexCube opponentStone : opponentGroup) {
+                    opponentStone.colour = 0;
+                }
+                isCapture= true;
 
-        if (!isTouchingOwnGroup) {
-            return 1;
-        }
-
-
-        hex.colour = playerTurn;
-        int newPlayerGroupSize = checkGroupSize(hex, hexs);
-        hex.colour = 0;
-
-
-        boolean valid = false;
-        for (int opponentSize : opponentGroupSizes) {
-            if (newPlayerGroupSize > opponentSize) {
-                valid = true;
             }
         }
-
-        if (!valid) {
+        if(isTouchingOwnGroup && !isCapture) {
             if (showMessage) showInvalidMove(invalidMoveText);
             return 0;
         }
-
         return 1;
     }
 
+    public ArrayList<HexCube> checkGroupSize(HexCube hex, ArrayList<HexCube> hexList) {
+        ArrayList<HexCube> group = new ArrayList<>();
 
-
-
-    public int checkGroupSize(HexCube hex, ArrayList<HexCube> hexList) {
-        if (hex == null || hex.colour == 0) return 0; // Ignore uncolored hexagons
+        if (hex == null || hex.colour == 0) return group; // Ignore uncolored hexagons
 
         boolean[] visited = new boolean[hexList.size()]; // Track visited hexagons
-        return checkGroupSizeUtil(hex, hexList, visited);
+        checkGroupSizeUtil(hex, hexList, visited, group);
+        return group;
     }
 
-    private int checkGroupSizeUtil(HexCube hex, ArrayList<HexCube> hexList, boolean[] visited) {
+    private int checkGroupSizeUtil(HexCube hex, ArrayList<HexCube> hexList, boolean[] visited, ArrayList<HexCube> group) {
         int index = hexList.indexOf(hex);
         if (index == -1 || visited[index]) return 0; // Prevent revisiting
 
         visited[index] = true;
+        group.add(hex);
+
         int groupSize = 1;
 
         for (HexCube neighbor : hex.getNeighbours(hexList)) {
             if (neighbor.colour == hex.colour && !visited[hexList.indexOf(neighbor)]) {
-                groupSize += checkGroupSizeUtil(neighbor, hexList, visited);
+                groupSize += checkGroupSizeUtil(neighbor, hexList, visited, group);
             }
         }
         return groupSize;
     }
-
-
 
     private void updateUI(Group root, Scene scene) {
         double size = 25;
@@ -214,56 +211,31 @@ public class HexGrid extends Application {
 
                 hexagon.setStroke(javafx.scene.paint.Color.BLACK);
 
-
-
-                // Hover Effect
-//                hexagon.setOnMouseEntered(event -> hexagon.setEffect(glow));
-//                hexagon.setOnMouseExited(event -> hexagon.setEffect(null));
-
-                hexagon.setOnMouseEntered(event -> {
-                    if (hex.colour == 0) {
-                        if (validateMove(hex, invalidMoveText, false) == 1) {
-                            hexagon.setFill(Color.color(0, 1, 0, 0.3)); // LIME with 50% opacity
-                            hexagon.setEffect(validGlow);
-                        } else {
-                            hexagon.setFill(Color.color(0.6, 0.3, 0.1, 0.3)); // BROWN with 50% opacity
-                            hexagon.setEffect(invalidGlow);
-                        }
-                    } else {
-                        hexagon.setEffect(invalidGlow);
-                    }
-                });
-
-
-
-                hexagon.setOnMouseExited(event -> {
-                    hexagon.setEffect(null);
-                    if (hex.colour == 0) { // Only reset color if it's uncolored
-                        hexagon.setFill(Color.WHITE);
-                    }
-                });
-
                 hexagon.setOnMouseClicked(event -> {
                     if (validateMove(hex, invalidMoveText, true) == 1) {
                         if (playerTurn == 1) {
-                            hex.colour = 1;
-                            hexagon.setFill(javafx.scene.paint.Color.RED);
-                            setPlayerTurn(2);
+                                hex.colour = 1;
+                                hexagon.setFill(javafx.scene.paint.Color.RED);
+                            }
+
+                            if (!isCapture) {
+                                setPlayerTurn(2);
+                            }
                             material.setDiffuseColor(Color.BLUE);
                             sphere.setMaterial(material);
                         } else {
-                            hex.colour = 2;
-                            hexagon.setFill(javafx.scene.paint.Color.BLUE);
-                            setPlayerTurn(1);
+                                hex.colour = 2;
+                                hexagon.setFill(javafx.scene.paint.Color.BLUE);
+
+                            if (!isCapture) {
+                                setPlayerTurn(1);
+                            }
                             material.setDiffuseColor(Color.RED);
                             sphere.setMaterial(material);
                         }
-                        selectedHexagon[0] = hexagon;
-//                        finalGrpSize = 1;
-                        System.out.println(checkGroupSize(hex, hexs));
-                    }
+                        isCapture = false;
+                        updateUI((Group) sphere.getParent(), sphere.getScene());
                 });
-
                 root.getChildren().add(hexagon);
             }
         }
@@ -297,8 +269,6 @@ public class HexGrid extends Application {
         text.setTranslateX(scene.getWidth() / 6 - 30); // Adjust dynamically
         text.setTranslateY(scene.getHeight() - 40);
         root.getChildren().add(text);
-
-
 
         // --- EXIT BUTTON ---
         javafx.scene.control.Button exit = new javafx.scene.control.Button("Exit");
