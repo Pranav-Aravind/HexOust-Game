@@ -1,4 +1,3 @@
-import java.sql.Array;
 import java.util.ArrayList;
 
 class Point
@@ -14,12 +13,13 @@ class Point
 
 public class HexCube
 {
-    public HexCube(int q, int r, int s, int colour)
+    public HexCube(int q, int r, int s, int colour, int status)
     {
         this.q = q;
         this.r = r;
         this.s = s;
         this.colour = colour;
+        this.visited = status;
         if (q + r + s != 0)
             throw new IllegalArgumentException("q + r + s must be 0");
     }
@@ -27,20 +27,20 @@ public class HexCube
     public final int q;
     public final int r;
     public final int s;
-    // added color attribute to a HexCube
     public int colour;
+    public int visited;
 
     public HexCube add(HexCube b)
     {
-        return new HexCube(q + b.q, r + b.r, s + b.s,b.colour);
+        return new HexCube(q + b.q, r + b.r, s + b.s,b.colour, b.visited);
     }
 
     public HexCube subtract(HexCube b)
     {
-        return new HexCube(q - b.q, r - b.r, s - b.s,b.colour);
+        return new HexCube(q - b.q, r - b.r, s - b.s,b.colour, b.visited);
     }
 
-    static public ArrayList<HexCube> directions = new ArrayList<HexCube>(){{add(new HexCube(1, 0, -1,0)); add(new HexCube(1, -1, 0,0)); add(new HexCube(0, -1, 1,0)); add(new HexCube(-1, 0, 1,0)); add(new HexCube(-1, 1, 0,0)); add(new HexCube(0, 1, -1,0));}};
+    static public ArrayList<HexCube> directions = new ArrayList<HexCube>(){{add(new HexCube(1, 0, -1,0, 0)); add(new HexCube(1, -1, 0,0, 0)); add(new HexCube(0, -1, 1,0, 0)); add(new HexCube(-1, 0, 1,0, 0)); add(new HexCube(-1, 1, 0,0, 0)); add(new HexCube(0, 1, -1,0, 0));}};
 
     static public HexCube direction(int direction)
     {
@@ -62,14 +62,12 @@ public class HexCube
         return subtract(b).length();
     }
 
-    //Get the neighbours of a Hexgagon
     public ArrayList<HexCube> getNeighbours(ArrayList<HexCube> hexList) {
         ArrayList<HexCube> neighbours = new ArrayList<>();
         for (int i = 0; i < 6; i++) {
             HexCube neighbor = this.neighbor(i);
-            //Iterate through our arraylist of Hexgaons hexList to find which Hexagon a neighbour represents
             for (HexCube hex : hexList) {
-                if (hex.q == neighbor.q && hex.r == neighbor.r && hex.s == neighbor.s) { //make sure their coordinates are the same
+                if (hex.q == neighbor.q && hex.r == neighbor.r && hex.s == neighbor.s) {
                     neighbours.add(hex);
                     break;
                 }
@@ -116,7 +114,7 @@ class FractionalHexCube
         {
             si = -qi - ri;
         }
-        return new HexCube(qi, ri, si,0);
+        return new HexCube(qi, ri, si,0, 0);
     }
 }
 

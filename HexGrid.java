@@ -13,7 +13,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,29 +74,55 @@ public class HexGrid extends Application {
     }
 
 
-    public int validateMove(HexCube hex, Text invalidMoveText) {
+    public int validateMove(HexCube hex) {
+        int isSameColour = 0;
         if(hex.colour != 0) {
-            showInvalidMove(invalidMoveText);
             return 0;
         }
         for(HexCube neighbour : hex.getNeighbours(hexs)) {
+            if(neighbour.colour != playerTurn && neighbour.colour != 0) {
+                return 1;
+            }
             if(neighbour.colour == playerTurn) {
-                showInvalidMove(invalidMoveText);
-                return 0;
+                isSameColour = 1;
             }
         }
-        return 1;
+        if(isSameColour == 1) {
+            return 0;
+        }
+       return 1;
     }
 
+    int finalGrpSize = 1;
+
+    public int checkGroup(HexCube hex, ArrayList<HexCube> hexList) {
+        hex.visited = 1;
+        for (HexCube neighbour : hex.getNeighbours(hexs)) {
+            if (neighbour.colour == hex.colour && neighbour.visited != 1) {
+                finalGrpSize++;
+                neighbour.visited = 1;
+                checkGroup(neighbour, hexList);
+            }
+        }
+        for(HexCube hexagon : hexs) {
+            hexagon.visited = 0;
+        }
+
+        return finalGrpSize;
+    }
 
     private void updateUI(Group root, Scene scene) {
         double size = 25;
         double originX = scene.getWidth() / 2;
         double originY = scene.getHeight() / 2;
 
-        DropShadow glow = new DropShadow();
-        glow.setColor(javafx.scene.paint.Color.BROWN);
-        glow.setRadius(10);
+        DropShadow validGlow = new DropShadow();
+        validGlow.setColor(Color.LIME);
+        validGlow.setRadius(10);
+
+        DropShadow invalidGlow = new DropShadow();
+        invalidGlow.setColor(Color.BROWN);
+        invalidGlow.setRadius(10);
 
         final javafx.scene.shape.Polygon[] selectedHexagon = {null};
 
@@ -130,7 +155,7 @@ public class HexGrid extends Application {
                 if (Math.abs(s) > baseN) continue;
 
                 String key = q + "," + r + "," + s;
-                HexCube hex = hexMap.getOrDefault(key, new HexCube(q, r, s, 0));
+                HexCube hex = hexMap.getOrDefault(key, new HexCube(q, r, s, 0, 0));
 
                 if (!hexMap.containsKey(key)) {
                     hexs.add(hex); // Add to the list only if it's new
@@ -151,16 +176,18 @@ public class HexGrid extends Application {
                 hexagon.setStroke(javafx.scene.paint.Color.BLACK);
 
 
-
-                // Hover Effect
-//                hexagon.setOnMouseEntered(event -> hexagon.setEffect(glow));
-//                hexagon.setOnMouseExited(event -> hexagon.setEffect(null));
-
                 hexagon.setOnMouseEntered(event -> {
-                    if (hex.colour == 0) { // Only change color if the hexagon is uncolored
-                        hexagon.setFill(Color.LIGHTGRAY); // Highlight effect
+                    if (hex.colour == 0) {
+                        if (validateMove(hex) == 1) {
+                            hexagon.setFill(Color.color(0, 1, 0, 0.3)); // LIME with 50% opacity
+                            hexagon.setEffect(validGlow);
+                        } else {
+                            hexagon.setFill(Color.color(0.6, 0.3, 0.1, 0.3)); // BROWN with 50% opacity
+                            hexagon.setEffect(invalidGlow);
+                        }
+                    } else {
+                        hexagon.setEffect(invalidGlow);
                     }
-                    hexagon.setEffect(glow);
                 });
 
                 hexagon.setOnMouseExited(event -> {
@@ -171,24 +198,23 @@ public class HexGrid extends Application {
                 });
 
                 hexagon.setOnMouseClicked(event -> {
-                    if (validateMove(hex, invalidMoveText) == 1) {
+                    if (validateMove(hex) == 1) {
                         if (playerTurn == 1) {
                             hex.colour = 1;
-                            hexagon.setFill(javafx.scene.paint.Color.RED);
                             setPlayerTurn(2);
+                            hexagon.setFill(javafx.scene.paint.Color.RED);
                             material.setDiffuseColor(Color.BLUE);
                             sphere.setMaterial(material);
                         } else {
                             hex.colour = 2;
-                            hexagon.setFill(javafx.scene.paint.Color.BLUE);
                             setPlayerTurn(1);
+                            hexagon.setFill(javafx.scene.paint.Color.BLUE);
                             material.setDiffuseColor(Color.RED);
                             sphere.setMaterial(material);
                         }
-                        selectedHexagon[0] = hexagon;
+                        updateUI((Group) sphere.getParent(), sphere.getScene());
                     }
                 });
-
                 root.getChildren().add(hexagon);
             }
         }
@@ -202,6 +228,7 @@ public class HexGrid extends Application {
         else{
             material.setDiffuseColor(Color.BLUE);
         }
+
         sphere.setMaterial(material);
         sphere.setTranslateX(scene.getWidth() * 0.1);  // 10% from left
         sphere.setTranslateY(scene.getHeight() - 50); // Near bottom
@@ -222,8 +249,6 @@ public class HexGrid extends Application {
         text.setTranslateX(scene.getWidth() / 6 - 30); // Adjust dynamically
         text.setTranslateY(scene.getHeight() - 40);
         root.getChildren().add(text);
-
-
 
         // --- EXIT BUTTON ---
         javafx.scene.control.Button exit = new javafx.scene.control.Button("Exit");
