@@ -56,33 +56,54 @@ public class GameMngr {
         }
         return 1;
     }
-    public static void updateBoardIfGameOver(Polygon hexagon){
-        if (!isStartOfGame && !isGameOver) {
-            boolean noRedStones = true;
-            boolean noBlueStones = true;
+//    public static void updateBoardIfGameOver(Polygon hexagon){
+//        if (!isStartOfGame && !isGameOver) {
+//            boolean noRedStones = true;
+//            boolean noBlueStones = true;
+//
+//            for (HexCube hex : hexs) {
+//                if (hex.colour == Colour.RED) {
+//                    noRedStones = false;
+//                } else if (hex.colour == Colour.BLUE) {
+//                    noBlueStones = false;
+//                }
+//                if (!noRedStones && !noBlueStones) {
+//                    break;
+//                }
+//            }
+//
+//            if (noBlueStones) {
+//                isGameOver = true;
+//                System.out.println("RED WINS!");
+//                if (FrontEnd.sphere != null && FrontEnd.sphere.getParent() != null) {
+//                    FrontEnd.updateGameUI((Group) FrontEnd.sphere.getParent(), FrontEnd.sphere.getScene());
+//                }
+//            } else if (noRedStones) {
+//                isGameOver = true;
+//                System.out.println("BLUE WINS!");
+//                if (FrontEnd.sphere != null && FrontEnd.sphere.getParent() != null) {
+//                    FrontEnd.updateGameUI((Group) FrontEnd.sphere.getParent(), FrontEnd.sphere.getScene());
+//                }
+//            }
+//        }
+//    }
 
-            for (HexCube hex : hexs) {
-                if (hex.colour == Colour.RED) {
-                    noRedStones = false;
-                } else if (hex.colour == Colour.BLUE) {
-                    noBlueStones = false;
-                }
-                if (!noRedStones && !noBlueStones) {
-                    break;
-                }
-            }
+    public static String checkAndDeclareWinner() {
+        if (!isStartOfGame && !isGameOver) {
+            boolean noRedStones = hexs.stream().noneMatch(h -> h.colour == Colour.RED);
+            boolean noBlueStones = hexs.stream().noneMatch(h -> h.colour == Colour.BLUE);
 
             if (noBlueStones) {
                 isGameOver = true;
-                System.out.println("RED WINS!");
-                FrontEnd.updateGameUI((Group) FrontEnd.sphere.getParent(), FrontEnd.sphere.getScene());
+                return "RED";
             } else if (noRedStones) {
                 isGameOver = true;
-                System.out.println("BLUE WINS!");
-                FrontEnd.updateGameUI((Group) FrontEnd.sphere.getParent(), FrontEnd.sphere.getScene());
+                return "BLUE";
             }
         }
+        return null;
     }
+
 
     public static boolean isTouchingOwnGroup(HexCube hex){
         boolean TouchingOwnGroup = false;
@@ -186,5 +207,10 @@ public class GameMngr {
     public static void setPlayerTurn(int player) {
         playerTurn = player;
     }
+
+
+
+
+
 
 }

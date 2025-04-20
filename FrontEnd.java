@@ -31,6 +31,15 @@ public class FrontEnd {
         }
     }
 
+    public static void checkGameOverAndUpdateUI() {
+        String winner = GameMngr.checkAndDeclareWinner();
+        if (winner != null && sphere != null && sphere.getParent() != null) {
+            System.out.println(winner + " WINS!");
+            updateGameUI((Group) sphere.getParent(), sphere.getScene());
+        }
+    }
+
+
     public static void processAndUpdateMoveOnBoard(HexCube hex, Polygon hexagon, Group root) {
         if (GameMngr.validateMove(hex, false) == 1) {
             GameMngr.noMoreValidMove = false;
@@ -48,10 +57,11 @@ public class FrontEnd {
                 GameMngr.isCapture = false;
                 updateGameUI((Group) sphere.getParent(), sphere.getScene());
             }
-            GameMngr.updateBoardIfGameOver(hexagon);
+            FrontEnd.checkGameOverAndUpdateUI();
         });
         root.getChildren().add(hexagon);
     }
+
 
     public static void invalidMove(Scene scene, Group root){
         invalidMoveText = new Text("Invalid Move!");
@@ -63,7 +73,6 @@ public class FrontEnd {
 
         root.getChildren().add(invalidMoveText);
     }
-
     public static javafx.scene.shape.Polygon createHexagon(ArrayList<Point> corners) {
         javafx.scene.shape.Polygon hex = new javafx.scene.shape.Polygon();
         for (Point p : corners) {
@@ -90,7 +99,6 @@ public class FrontEnd {
         hexagon.setStroke(Color.BLACK);
         return hexagon;
     }
-
     public static void addHoverOverEffect(Polygon hexagon, HexCube hex){
         //Hover effect
         hexagon.setOnMouseEntered(event -> {
@@ -112,7 +120,13 @@ public class FrontEnd {
         });
     }
 
+
+
+
     public static void showInvalidMove() {
+
+        if (invalidMoveText == null) return;
+
         invalidMoveText.setVisible(true);
 
         Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
@@ -122,13 +136,6 @@ public class FrontEnd {
         timeline.play();
     }
 
-    public static void updateScene(Scene scene, Group root){
-        Title(scene, root);
-        InstructionsText(scene, root);
-        Sphere(scene, root);
-        invalidMove(scene,root);
-        Exit(scene, root);
-    }
     public static void Title(Scene scene, Group root){
         Text title = new Text("HexOust");
         title.setFill(javafx.scene.paint.Color.BLACK);
@@ -176,7 +183,13 @@ public class FrontEnd {
         sphere.setTranslateY(scene.getHeight() - 50); // Near bottom
         root.getChildren().add(sphere);
     }
-
+    public static void updateScene(Scene scene, Group root){
+        Title(scene, root);
+        InstructionsText(scene, root);
+        Sphere(scene, root);
+        invalidMove(scene,root);
+        Exit(scene, root);
+    }
     private static void clearUI(Group root) {
         root.getChildren().clear();
     }

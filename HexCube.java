@@ -19,7 +19,8 @@ class Point
 
 public class HexCube
 {
-    
+
+
     public HexCube(int q, int r, int s, int colour, int status)
     {
         this.q = q;
