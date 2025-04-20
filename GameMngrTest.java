@@ -1,6 +1,6 @@
 import javafx.scene.text.Text;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 
@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class GameMngrTest {
 
-    @BeforeEach
+    @Before
     public void setup() {
         GameMngr.hexs.clear();
         GameMngr.isGameOver = false;

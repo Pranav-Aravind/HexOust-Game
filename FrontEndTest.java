@@ -6,8 +6,8 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.text.Text;
 import javafx.scene.paint.Color;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FrontEndTest {
 
-    @BeforeAll
+    @BeforeClass
     public static void initJFX() {
         new JFXPanel();
     }
@@ -118,7 +118,4 @@ public class FrontEndTest {
 
         assertTrue(found, "Exit button should be added to the scene");
     }
-
-
-
 }
