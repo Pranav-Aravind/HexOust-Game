@@ -21,10 +21,13 @@ public class HexGrid extends Application {
     //created an ArrayList of hexagons to store the state of each Hexagons
     private ArrayList<HexCube> hexs = new ArrayList<>();
     int playerTurn = 1;
+    boolean isStartOfGame = true;
+    boolean isGameOver = false;
     private Sphere sphere; // Store sphere as instance variable
     private PhongMaterial material; // Store material for updates
     boolean isCapture=false;
-    boolean isSelfCapture = false;
+    int move = 0;
+    boolean noMoreValidMove = true;
 
     public void setPlayerTurn(int player) {
         playerTurn = player;
@@ -75,7 +78,11 @@ public class HexGrid extends Application {
         timeline.play();
     }
 
-    public int validateMove(HexCube hex, Text invalidMoveText, boolean showMessage) {
+    public int validateMove(HexCube hex, Text invalidMoveText, boolean showMessage, boolean makeMove) {
+        if(isGameOver) {
+            return 0;
+        }
+
         if (hex.colour != 0) {
             if (showMessage) showInvalidMove(invalidMoveText);
             return 0;
@@ -107,20 +114,21 @@ public class HexGrid extends Application {
 
         for (ArrayList<HexCube> opponentGroup : opponentGroups) {
             if (playerGroup.size() > opponentGroup.size()) {
-                for(HexCube opponentStone : opponentGroup) {
-                    opponentStone.colour = 0;
+                isCapture = true;
+                if(makeMove) {
+                    for(HexCube stone: opponentGroup) {
+                        stone.colour = 0;
+                    }
                 }
-                isCapture= true;
-            } else if (playerGroup.size() < opponentGroup.size()) {
-                for(HexCube playerStone : playerGroup) {
-                    playerStone.colour = 0;
-                }
-                isSelfCapture = true;
             }
         }
         if(isTouchingOwnGroup && !isCapture) {
             if (showMessage) showInvalidMove(invalidMoveText);
             return 0;
+        }
+
+        if(makeMove) {
+            move++;
         }
         return 1;
     }
@@ -213,46 +221,92 @@ public class HexGrid extends Application {
                 } else {
                     hexagon.setFill(javafx.scene.paint.Color.WHITE);
                 }
-
                 hexagon.setStroke(javafx.scene.paint.Color.BLACK);
 
-                hexagon.setOnMouseClicked(event -> {
-                    if (validateMove(hex, invalidMoveText, true) == 1) {
-                        if (playerTurn == 1) {
-                            if (isSelfCapture) {
-                                hex.colour = 0;
-                            } else {
-                                hex.colour = 1;
-                                hexagon.setFill(javafx.scene.paint.Color.RED);
-                            }
 
+                //Hover effect
+                hexagon.setOnMouseEntered(event -> {
+                    if (hex.colour == 0) {
+                        if (validateMove(hex, invalidMoveText, false, false) == 1) {
+                            isCapture = false;
+                            if(playerTurn == 1) {
+                                hexagon.setFill(Color.color(1, 0, 0, 0.3)); // RED with 30% opacity
+                            } else {
+                                hexagon.setFill(Color.color(0, 0, 1, 0.3)); // BLUE with 30% opacity
+                            }
+                        }
+                    }
+                });
+
+                hexagon.setOnMouseExited(event -> {
+                    if (hex.colour == 0) { // Only reset color if it's uncolored
+                        hexagon.setFill(Color.WHITE);
+                    }
+                });
+
+                if(validateMove(hex, invalidMoveText, false, false) == 1) {
+                    noMoreValidMove = false;
+                }
+                isCapture = false;
+
+                int move = 0;
+                hexagon.setOnMouseClicked(event -> {
+                    if (validateMove(hex, invalidMoveText, true, true) == 1) {
+                        if (playerTurn == 1) {
+                            hex.colour = 1;
                             if (!isCapture) {
                                 setPlayerTurn(2);
                             }
-                            material.setDiffuseColor(Color.BLUE);
-                            sphere.setMaterial(material);
                         } else {
-                            if (isSelfCapture) {
-                                hex.colour = 0;
-                            } else {
-                                hex.colour = 2;
-                                hexagon.setFill(javafx.scene.paint.Color.BLUE);
-                            }
-
+                            hex.colour = 2;
                             if (!isCapture) {
                                 setPlayerTurn(1);
                             }
-                            material.setDiffuseColor(Color.RED);
-                            sphere.setMaterial(material);
                         }
                         isCapture = false;
-                        isSelfCapture = false;
                         updateUI((Group) sphere.getParent(), sphere.getScene());
+                    }
+
+                    if(!isStartOfGame && !isGameOver) {
+                        boolean noRedStones = true;
+                        boolean noBlueStones = true;
+
+                        for(HexCube hexa: hexs) {
+                            if(hexa.colour == 1) {
+                                noRedStones = false;
+                            } else if(hexa.colour == 2) {
+                                noBlueStones = false;
+                            }
+                            if(!noRedStones && !noBlueStones) {
+                                break;
+                            }
+                        }
+                        if(noBlueStones) {
+                            isGameOver = true;
+                            System.out.println("RED WINS!");
+                            updateUI((Group) sphere.getParent(), sphere.getScene());
+                        } else if (noRedStones) {
+                            isGameOver = true;
+                            System.out.println("BLUE WINS!");
+                            updateUI((Group) sphere.getParent(), sphere.getScene());
+                        }
                     }
                 });
                 root.getChildren().add(hexagon);
             }
+            if(move == 2) {
+                isStartOfGame = false;
+            }
         }
+
+        if(noMoreValidMove && !isGameOver) {
+            if (playerTurn == 1) {
+                setPlayerTurn(2);
+            } else {
+                setPlayerTurn(1);
+            }
+        }
+        noMoreValidMove = true;
 
         // --- BALL (SPHERE) ---
         sphere = new Sphere(13);
@@ -265,6 +319,9 @@ public class HexGrid extends Application {
         }
         sphere.setMaterial(material);
         sphere.setTranslateX(scene.getWidth() * 0.1);  // 10% from left
+        if(isGameOver) {
+            sphere.setTranslateX(scene.getWidth() * 0.325);  // 32.5% from left
+        }
         sphere.setTranslateY(scene.getHeight() - 50); // Near bottom
         root.getChildren().add(sphere);
 
@@ -277,10 +334,21 @@ public class HexGrid extends Application {
         root.getChildren().add(title);
 
         // --- INSTRUCTIONS TEXT ---
-        Text text = new Text("To make a move");
+        Text text = null;
+        if(!isGameOver){
+            text=new Text("To make a move");
+        }
+        else if(isGameOver && playerTurn == 1) {
+            text = new Text("Game Over! Red Wins!");
+        } else if(isGameOver && playerTurn == 2) {
+            text = new Text("Game Over! Blue Wins!");
+        }
         text.setFill(javafx.scene.paint.Color.BLACK);
         text.setFont(Font.font("Arial", 20));
         text.setTranslateX(scene.getWidth() / 6 - 30); // Adjust dynamically
+        if(isGameOver) {
+            text.setTranslateX(scene.getWidth() / 2.5 - 30);
+        }
         text.setTranslateY(scene.getHeight() - 40);
         root.getChildren().add(text);
 
@@ -295,5 +363,4 @@ public class HexGrid extends Application {
         });
         root.getChildren().add(exit);
     }
-
 }
