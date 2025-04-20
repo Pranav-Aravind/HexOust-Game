@@ -3,7 +3,6 @@ import javafx.scene.Scene;
 import javafx.scene.shape.Polygon;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
 import java.util.ArrayList;
 
 public class GameMngr {
@@ -14,6 +13,24 @@ public class GameMngr {
     static boolean isGameOver = false;
     static boolean isCapture = false;
     static boolean noMoreValidMove = true;
+    static int redScore = 0;
+    static int blueScore = 0;
+
+    public static void resetStones() {
+        for(HexCube hex: hexs) {
+            hex.colour = 0;
+        }
+    }
+
+    public static void resetBackEnd() {
+        resetStones();
+        playerTurn = 1;
+        move = 0;
+        isStartOfGame = true;
+        isGameOver = false;
+        isCapture = false;
+        noMoreValidMove = true;
+    }
 
     public static void startGame(Stage stage) {
         Group root = new Group();
@@ -56,37 +73,6 @@ public class GameMngr {
         }
         return 1;
     }
-//    public static void updateBoardIfGameOver(Polygon hexagon){
-//        if (!isStartOfGame && !isGameOver) {
-//            boolean noRedStones = true;
-//            boolean noBlueStones = true;
-//
-//            for (HexCube hex : hexs) {
-//                if (hex.colour == Colour.RED) {
-//                    noRedStones = false;
-//                } else if (hex.colour == Colour.BLUE) {
-//                    noBlueStones = false;
-//                }
-//                if (!noRedStones && !noBlueStones) {
-//                    break;
-//                }
-//            }
-//
-//            if (noBlueStones) {
-//                isGameOver = true;
-//                System.out.println("RED WINS!");
-//                if (FrontEnd.sphere != null && FrontEnd.sphere.getParent() != null) {
-//                    FrontEnd.updateGameUI((Group) FrontEnd.sphere.getParent(), FrontEnd.sphere.getScene());
-//                }
-//            } else if (noRedStones) {
-//                isGameOver = true;
-//                System.out.println("BLUE WINS!");
-//                if (FrontEnd.sphere != null && FrontEnd.sphere.getParent() != null) {
-//                    FrontEnd.updateGameUI((Group) FrontEnd.sphere.getParent(), FrontEnd.sphere.getScene());
-//                }
-//            }
-//        }
-//    }
 
     public static String checkAndDeclareWinner() {
         if (!isStartOfGame && !isGameOver) {
@@ -95,15 +81,16 @@ public class GameMngr {
 
             if (noBlueStones) {
                 isGameOver = true;
+                redScore++;
                 return "RED";
             } else if (noRedStones) {
                 isGameOver = true;
+                blueScore++;
                 return "BLUE";
             }
         }
         return null;
     }
-
 
     public static boolean isTouchingOwnGroup(HexCube hex){
         boolean TouchingOwnGroup = false;
@@ -207,10 +194,4 @@ public class GameMngr {
     public static void setPlayerTurn(int player) {
         playerTurn = player;
     }
-
-
-
-
-
-
 }
