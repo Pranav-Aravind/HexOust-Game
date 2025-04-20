@@ -1,16 +1,19 @@
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Separator;
+import javafx.geometry.Orientation;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Sphere;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import javafx.util.Duration;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -19,7 +22,6 @@ public class FrontEnd {
     public static Sphere sphere; // Store sphere as instance variable
 
     public static void updateGameUI(Group root, Scene scene) {
-
         clearUI(root);
         Layout layout = setupLayout(scene);
         HashMap<String, HexCube> hexMap = buildHexMap();//store all hexagons and make them easily findable
@@ -61,7 +63,6 @@ public class FrontEnd {
         });
         root.getChildren().add(hexagon);
     }
-
 
     public static void invalidMove(Scene scene, Group root){
         invalidMoveText = new Text("Invalid Move!");
@@ -120,9 +121,6 @@ public class FrontEnd {
         });
     }
 
-
-
-
     public static void showInvalidMove() {
 
         if (invalidMoveText == null) return;
@@ -144,6 +142,7 @@ public class FrontEnd {
         title.setTranslateY(50);
         root.getChildren().add(title);
     }
+
     public static void InstructionsText(Scene scene, Group root){
         Text text = GameMngr.gameStatus();
         text.setFill(javafx.scene.paint.Color.BLACK);
@@ -162,10 +161,63 @@ public class FrontEnd {
         exit.setTranslateY(10);
         exit.setOnAction(event -> {
             System.out.println("Closing HexOust");
-            Platform.exit();
+            Stage stage = (Stage) exit.getScene().getWindow();
+            stage.close();
         });
         root.getChildren().add(exit);
     }
+
+    public static void RestartGame(Scene scene, Group root){
+        javafx.scene.control.Button restart = new javafx.scene.control.Button("Restart");
+        restart.setPrefSize(70, 30);
+        restart.setTranslateX(20); // Position at left-right dynamically
+        restart.setTranslateY(10);
+        restart.setOnAction(event -> {
+            System.out.println("Restarting HexOust");
+            GameMngr.resetBackEnd();
+            Stage stage = (Stage) restart.getScene().getWindow();
+            stage.close();
+            GameMngr.startGame(new Stage());
+        });
+        root.getChildren().add(restart);
+    }
+
+    public static void ScoreBoard(Scene scene, Group root, int redWins, int blueWins) {
+        GridPane scoreboard = new GridPane();
+        scoreboard.setGridLinesVisible(true);
+
+        // Headers
+        Text redHeader = new Text("Red Wins ");
+        redHeader.setFill(Color.RED);
+        redHeader.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+
+        Text blueHeader = new Text("Blue Wins ");
+        blueHeader.setFill(Color.BLUE);
+        blueHeader.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+
+        // Scores
+        Text redScore = new Text(String.valueOf(redWins));
+        redScore.setFill(Color.BLACK);
+        redScore.setFont(Font.font("Arial", 16));
+
+        Text blueScore = new Text(String.valueOf(blueWins));
+        blueScore.setFill(Color.BLACK);
+        blueScore.setFont(Font.font("Arial", 16));
+
+        // Add to GridPane (col, row)
+        scoreboard.add(redHeader, 0, 0);
+        scoreboard.add(blueHeader, 1, 0);
+        scoreboard.add(redScore, 0, 1);
+        scoreboard.add(blueScore, 1, 1);
+
+        // Position the scoreboard at bottom right
+        scoreboard.setLayoutX(scene.getWidth() / 1.5 + 40);
+        scoreboard.setLayoutY(scene.getHeight() - 70);
+
+        root.getChildren().add(scoreboard);
+    }
+
+
     public static void Sphere(Scene scene, Group root){
         sphere = new Sphere(13);
         PhongMaterial material; // Store material for updates
@@ -189,6 +241,8 @@ public class FrontEnd {
         Sphere(scene, root);
         invalidMove(scene,root);
         Exit(scene, root);
+        RestartGame(scene, root);
+        ScoreBoard(scene, root, GameMngr.redScore, GameMngr.blueScore);
     }
     private static void clearUI(Group root) {
         root.getChildren().clear();
