@@ -1,5 +1,11 @@
 import java.util.ArrayList;
 
+class Colour {
+    public static final int WHITE = 0;
+    public static final int RED = 1;
+    public static final int BLUE = 2; // BLUE is the same value as RED
+}
+
 class Point
 {
     public Point(double x, double y)
@@ -13,6 +19,8 @@ class Point
 
 public class HexCube
 {
+
+
     public HexCube(int q, int r, int s, int colour, int status)
     {
         this.q = q;
@@ -40,7 +48,7 @@ public class HexCube
         return new HexCube(q - b.q, r - b.r, s - b.s,b.colour, b.visited);
     }
 
-    static public ArrayList<HexCube> directions = new ArrayList<HexCube>(){{add(new HexCube(1, 0, -1,0, 0)); add(new HexCube(1, -1, 0,0, 0)); add(new HexCube(0, -1, 1,0, 0)); add(new HexCube(-1, 0, 1,0, 0)); add(new HexCube(-1, 1, 0,0, 0)); add(new HexCube(0, 1, -1,0, 0));}};
+    static public ArrayList<HexCube> directions = new ArrayList<HexCube>(){{add(new HexCube(1, 0, -1,Colour.WHITE, 0)); add(new HexCube(1, -1, 0,Colour.WHITE, 0)); add(new HexCube(0, -1, 1,Colour.WHITE, 0)); add(new HexCube(-1, 0, 1,Colour.WHITE, 0)); add(new HexCube(-1, 1, 0,Colour.WHITE, 0)); add(new HexCube(0, 1, -1,Colour.WHITE, 0));}};
 
     static public HexCube direction(int direction)
     {
@@ -114,7 +122,7 @@ class FractionalHexCube
         {
             si = -qi - ri;
         }
-        return new HexCube(qi, ri, si,0, 0);
+        return new HexCube(qi, ri, si,Colour.WHITE, 0);
     }
 }
 
