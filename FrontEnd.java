@@ -17,10 +17,16 @@ import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Handles all user interface rendering and interaction logic for the HexOust game.
+ * This includes drawing the board, managing input events, and updating UI elements.
+ */
+
 public class FrontEnd {
     private static Text invalidMoveText;
     public static Sphere sphere; // Store sphere as instance variable
 
+    //Clears and re-renders the entire game UI including hex grid and status elements.
     public static void updateGameUI(Group root, Scene scene) {
         clearUI(root);
         Layout layout = setupLayout(scene);
@@ -42,6 +48,7 @@ public class FrontEnd {
     }
 
 
+    //Registers a mouse click handler to process player moves and update the board.
     public static void processAndUpdateMoveOnBoard(HexCube hex, Polygon hexagon, Group root) {
         if (GameMngr.validateMove(hex, false) == 1) {
             GameMngr.noMoreValidMove = false;
@@ -86,7 +93,6 @@ public class FrontEnd {
         ArrayList<Point> corners = layout.polygonCorners(hex);
         Polygon hexagon = createHexagon(corners);
 
-        // Maintain color state
         switch (hex.colour) {
             case Colour.RED:
                 hexagon.setFill(Color.RED);
@@ -101,15 +107,14 @@ public class FrontEnd {
         return hexagon;
     }
     public static void addHoverOverEffect(Polygon hexagon, HexCube hex){
-        //Hover effect
         hexagon.setOnMouseEntered(event -> {
             if (hex.colour == Colour.WHITE) {
                 if (GameMngr.validateMove(hex, false) == 1) {
                     GameMngr.isCapture = false;
                     if (GameMngr.playerTurn == 1) {
-                        hexagon.setFill(Color.color(1, 0, 0, 0.3)); // RED with 30% opacity
+                        hexagon.setFill(Color.color(1, 0, 0, 0.3));
                     } else {
-                        hexagon.setFill(Color.color(0, 0, 1, 0.3)); // BLUE with 30% opacity
+                        hexagon.setFill(Color.color(0, 0, 1, 0.3));
                     }
                 }
             }
@@ -157,7 +162,7 @@ public class FrontEnd {
     public static void Exit(Scene scene, Group root){
         javafx.scene.control.Button exit = new javafx.scene.control.Button("Exit");
         exit.setPrefSize(70, 30);
-        exit.setTranslateX(scene.getWidth() - 80); // Position at top-right dynamically
+        exit.setTranslateX(scene.getWidth() - 80);
         exit.setTranslateY(10);
         exit.setOnAction(event -> {
             System.out.println("Closing HexOust");
@@ -170,7 +175,7 @@ public class FrontEnd {
     public static void RestartGame(Scene scene, Group root){
         javafx.scene.control.Button restart = new javafx.scene.control.Button("Restart");
         restart.setPrefSize(70, 30);
-        restart.setTranslateX(20); // Position at left-right dynamically
+        restart.setTranslateX(20);
         restart.setTranslateY(10);
         restart.setOnAction(event -> {
             System.out.println("Restarting HexOust");
@@ -220,7 +225,7 @@ public class FrontEnd {
 
     public static void Sphere(Scene scene, Group root){
         sphere = new Sphere(13);
-        PhongMaterial material; // Store material for updates
+        PhongMaterial material;
         material = new PhongMaterial();
         if (GameMngr.playerTurn == 1) {
             material.setDiffuseColor(Color.RED);
@@ -228,11 +233,11 @@ public class FrontEnd {
             material.setDiffuseColor(Color.BLUE);
         }
         sphere.setMaterial(material);
-        sphere.setTranslateX(scene.getWidth() * 0.1);  // 10% from left
+        sphere.setTranslateX(scene.getWidth() * 0.1);
         if (GameMngr.isGameOver) {
-            sphere.setTranslateX(scene.getWidth() * 0.325);  // 32.5% from left
+            sphere.setTranslateX(scene.getWidth() * 0.325);
         }
-        sphere.setTranslateY(scene.getHeight() - 50); // Near bottom
+        sphere.setTranslateY(scene.getHeight() - 50);
         root.getChildren().add(sphere);
     }
     public static void updateScene(Scene scene, Group root){

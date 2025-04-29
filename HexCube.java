@@ -3,7 +3,7 @@ import java.util.ArrayList;
 class Colour {
     public static final int WHITE = 0;
     public static final int RED = 1;
-    public static final int BLUE = 2; // BLUE is the same value as RED
+    public static final int BLUE = 2;
 }
 
 class Point
@@ -17,10 +17,12 @@ class Point
     public final double y;
 }
 
+/**
+ * Represents a hexagonal tile using cube coordinates (q, r, s).
+ * Used for grid positioning and movement logic in the game.
+ */
 public class HexCube
 {
-
-
     public HexCube(int q, int r, int s, int colour, int status)
     {
         this.q = q;
@@ -70,6 +72,7 @@ public class HexCube
         return subtract(b).length();
     }
 
+    //Returns all neighboring hexes from the provided list that are adjacent to this hex.
     public ArrayList<HexCube> getNeighbours(ArrayList<HexCube> hexList) {
         ArrayList<HexCube> neighbours = new ArrayList<>();
         for (int i = 0; i < 6; i++) {

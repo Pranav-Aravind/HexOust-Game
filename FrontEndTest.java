@@ -118,4 +118,27 @@ public class FrontEndTest {
 
         assertTrue(found, "Exit button should be added to the scene");
     }
+
+    @Test
+    public void testRestartButtonIsAdded() {
+        Group root = new Group();
+        Scene scene = new Scene(root, 800, 600);
+
+        FrontEnd.RestartGame(scene, root);
+
+        boolean found = false;
+        List<javafx.scene.Node> children = root.getChildren();
+        for (int i = 0; i < children.size(); i++) {
+            javafx.scene.Node node = children.get(i);
+            if (node instanceof Button) {
+                Button b = (Button) node;
+                if ("Restart".equals(b.getText())) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        assertTrue(found, "Restart button should be added to the scene");
+    }
 }

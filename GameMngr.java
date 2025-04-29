@@ -6,7 +6,7 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 
 public class GameMngr {
-    static ArrayList<HexCube> hexs = new ArrayList<>(); //created an ArrayList of hexagons to store the state of each Hexagons
+    static ArrayList<HexCube> hexs = new ArrayList<>(); //Stores the state of each Hexagon
     static int playerTurn = 1;
     static int move = 0;
     static boolean isStartOfGame = true;
@@ -22,6 +22,7 @@ public class GameMngr {
         }
     }
 
+    //Resets the game state variables to start a new game session.
     public static void resetBackEnd() {
         resetStones();
         playerTurn = 1;
@@ -32,6 +33,7 @@ public class GameMngr {
         noMoreValidMove = true;
     }
 
+    //Sets up the game window, UI components, and initializes the board layout.
     public static void startGame(Stage stage) {
         Group root = new Group();
         Scene scene = new Scene(root, 700, 700, javafx.scene.paint.Color.WHITE);
@@ -132,6 +134,7 @@ public class GameMngr {
         }
     }
 
+    //Finds all connected hexes of the same color starting from the given hex.
     public static ArrayList<HexCube> getGroup(HexCube hex, ArrayList<HexCube> hexList) {
         ArrayList<HexCube> group = new ArrayList<>();
 
@@ -141,6 +144,8 @@ public class GameMngr {
         getGroupUtil(hex, hexList, visited, group);
         return group;
     }
+
+    //Helper method for getGroup
     private static int getGroupUtil(HexCube hex, ArrayList<HexCube> hexList, boolean[] visited, ArrayList<HexCube> group) {
         int index = hexList.indexOf(hex);
         if (index == -1 || visited[index]) return 0; // Prevent revisiting
@@ -158,6 +163,7 @@ public class GameMngr {
         return groupSize;
     }
 
+    //Returns a text description of the current game state.
     public static Text gameStatus(){
         if (isGameOver && playerTurn == 1) {
             return new Text("Game Over! Red Wins!");
