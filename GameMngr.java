@@ -1,6 +1,5 @@
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.shape.Polygon;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import java.util.ArrayList;

@@ -180,15 +180,6 @@ class Layout
         return new Point(x + origin.x, y + origin.y);
     }
 
-    public FractionalHexCube pixelToHex(Point p)
-    {
-        Orientation M = orientation;
-        Point pt = new Point((p.x - origin.x) / size.x, (p.y - origin.y) / size.y);
-        double q = M.b0 * pt.x + M.b1 * pt.y;
-        double r = M.b2 * pt.x + M.b3 * pt.y;
-        return new FractionalHexCube(q, r, -q - r);
-    }
-
     public Point hexCornerOffset(int corner)
     {
         Orientation M = orientation;
