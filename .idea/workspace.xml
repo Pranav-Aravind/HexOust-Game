@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c54932d7-e4cd-4fda-9c8d-363fc2c36280" name="Changes" comment="">
+    <list default="true" id="c54932d7-e4cd-4fda-9c8d-363fc2c36280" name="Changes" comment="Made javadocs for HexGrid.java and GameManager.java">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -78,10 +78,24 @@
       <workItem from="1745941183426" duration="13000" />
       <workItem from="1745941204810" duration="811000" />
       <workItem from="1745942037201" duration="1426000" />
+      <workItem from="1746281105376" duration="670000" />
     </task>
+    <task id="LOCAL-00001" summary="Made javadocs for HexGrid.java and GameManager.java">
+      <option name="closed" value="true" />
+      <created>1746281393008</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1746281393008</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Made javadocs for HexGrid.java and GameManager.java" />
+    <option name="LAST_COMMIT_MESSAGE" value="Made javadocs for HexGrid.java and GameManager.java" />
   </component>
 </project>

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GameMngrTest {
+public class GameManagerTest {
 
     @Before
     public void setup() {

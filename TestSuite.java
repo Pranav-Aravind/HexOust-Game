@@ -3,7 +3,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-        GameMngrTest.class,
+        GameManagerTest.class,
         FrontEndTest.class,
         HexCubeTest.class
 })
