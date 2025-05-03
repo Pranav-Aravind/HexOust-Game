@@ -10,33 +10,33 @@ public class GameMngrTest {
 
     @Before
     public void setup() {
-        GameMngr.hexs.clear();
-        GameMngr.isGameOver = false;
-        GameMngr.isStartOfGame = true;
-        GameMngr.move = 0;
-        GameMngr.playerTurn = 1;
-        GameMngr.noMoreValidMove = true;
+        GameManager.hexs.clear();
+        GameManager.isGameOver = false;
+        GameManager.isStartOfGame = true;
+        GameManager.move = 0;
+        GameManager.playerTurn = 1;
+        GameManager.noMoreValidMove = true;
     }
 
     @Test
     public void testValidateMoveFailsOnGameOver() {
-        GameMngr.isGameOver = true;
+        GameManager.isGameOver = true;
         HexCube hex = new HexCube(0, 0, 0, Colour.WHITE, 0);
-        assertEquals(0, GameMngr.validateMove(hex, false));
+        assertEquals(0, GameManager.validateMove(hex, false));
     }
 
     @Test
     public void testValidateMoveRejectsColoredHex() {
         HexCube hex = new HexCube(0, 0, 0, Colour.RED, 0);
-        assertEquals(0, GameMngr.validateMove(hex, true));
+        assertEquals(0, GameManager.validateMove(hex, true));
     }
 
     @Test
     public void testValidateMoveAcceptsUncoloredHex() {
         HexCube hex = new HexCube(0, 0, 0, Colour.WHITE, 0);
-        GameMngr.hexs.add(hex);
-        assertEquals(1, GameMngr.validateMove(hex, true));
-        assertEquals(1, GameMngr.move);
+        GameManager.hexs.add(hex);
+        assertEquals(1, GameManager.validateMove(hex, true));
+        assertEquals(1, GameManager.move);
     }
 
     @Test
@@ -49,91 +49,91 @@ public class GameMngrTest {
         hexList.add(a);
         hexList.add(b);
 
-        ArrayList<HexCube> group = GameMngr.getGroup(a, hexList);
+        ArrayList<HexCube> group = GameManager.getGroup(a, hexList);
         assertEquals(2, group.size());
     }
 
     @Test
     public void testRemoveStone() {
         HexCube stone = new HexCube(0, 0, 0, Colour.BLUE, 0);
-        GameMngr.removeStone(stone);
+        GameManager.removeStone(stone);
         assertEquals(Colour.WHITE, stone.colour);
     }
 
     @Test
     public void testCaptureLogic() {
-        GameMngr.hexs.clear();
-        GameMngr.isGameOver = false;
-        GameMngr.playerTurn = Colour.RED;
+        GameManager.hexs.clear();
+        GameManager.isGameOver = false;
+        GameManager.playerTurn = Colour.RED;
 
 
         HexCube blue = new HexCube(0, 0, 0, Colour.BLUE, 0);
 
-        GameMngr.hexs.add(blue);
-        GameMngr.hexs.add(new HexCube(1, -1, 0, Colour.RED, 0));
-        GameMngr.hexs.add(new HexCube(1, 0, -1, Colour.RED, 0));
+        GameManager.hexs.add(blue);
+        GameManager.hexs.add(new HexCube(1, -1, 0, Colour.RED, 0));
+        GameManager.hexs.add(new HexCube(1, 0, -1, Colour.RED, 0));
 
 
         HexCube redMove = new HexCube(0, -1, 1, Colour.WHITE, 0); // Uncolored
-        GameMngr.hexs.add(redMove);
+        GameManager.hexs.add(redMove);
 
-        GameMngr.removeStonesIfAny(redMove, true); // Simulate move
+        GameManager.removeStonesIfAny(redMove, true); // Simulate move
 
         assertEquals(Colour.WHITE, blue.colour); // Blue should now be captured
     }
 
     @Test
     public void testRedWinsLogic() {
-        GameMngr.hexs.clear();
-        GameMngr.isStartOfGame = false;
-        GameMngr.isGameOver = false;
-        GameMngr.playerTurn = Colour.RED;
+        GameManager.hexs.clear();
+        GameManager.isStartOfGame = false;
+        GameManager.isGameOver = false;
+        GameManager.playerTurn = Colour.RED;
 
         HexCube red = new HexCube(0, 0, 0, Colour.RED, 0);
-        GameMngr.hexs.add(red);
+        GameManager.hexs.add(red);
 
-        String result = GameMngr.checkAndDeclareWinner();
+        String result = GameManager.checkAndDeclareWinner();
         assertEquals("RED", result);
-        assertTrue(GameMngr.isGameOver);
+        assertTrue(GameManager.isGameOver);
     }
 
 
     @Test
     public void testBlueWinsLogic() {
-        GameMngr.hexs.clear();
-        GameMngr.isGameOver = false;
-        GameMngr.isStartOfGame = false;
-        GameMngr.playerTurn = Colour.BLUE;
+        GameManager.hexs.clear();
+        GameManager.isGameOver = false;
+        GameManager.isStartOfGame = false;
+        GameManager.playerTurn = Colour.BLUE;
 
         HexCube blue = new HexCube(1, -1, 0, Colour.BLUE, 0);
-        GameMngr.hexs.add(blue);
+        GameManager.hexs.add(blue);
 
-        String result = GameMngr.checkAndDeclareWinner();
+        String result = GameManager.checkAndDeclareWinner();
         assertEquals("BLUE", result);
-        assertTrue(GameMngr.isGameOver);
+        assertTrue(GameManager.isGameOver);
     }
 
     @Test
     public void testGameStatus_GameOverRed() {
-        GameMngr.isGameOver = true;
-        GameMngr.playerTurn = 1;
-        Text result = GameMngr.gameStatus();
+        GameManager.isGameOver = true;
+        GameManager.playerTurn = 1;
+        Text result = GameManager.gameStatus();
         assertEquals("Game Over! Red Wins!", result.getText());
     }
 
     @Test
     public void testGameStatus_GameOverBlue() {
-        GameMngr.isGameOver = true;
-        GameMngr.playerTurn = 2;
-        Text result = GameMngr.gameStatus();
+        GameManager.isGameOver = true;
+        GameManager.playerTurn = 2;
+        Text result = GameManager.gameStatus();
         assertEquals("Game Over! Blue Wins!", result.getText());
     }
 
     @Test
     public void testGameStatus_InProgress() {
-        GameMngr.isGameOver = false;
-        GameMngr.playerTurn = 1; // or 2, doesn't matter in this case
-        Text result = GameMngr.gameStatus();
+        GameManager.isGameOver = false;
+        GameManager.playerTurn = 1; // or 2, doesn't matter in this case
+        Text result = GameManager.gameStatus();
         assertEquals("To make a Move", result.getText());
     }
 
