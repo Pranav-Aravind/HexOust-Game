@@ -7,15 +7,22 @@ import static org.junit.jupiter.api.Assertions.*;
 public class HexCubeTest {
 
     @Test
-    public void testAddSubtract() {
+    public void testAdd() {
         HexCube a = new HexCube(1, -1, 0, Colour.RED, 0);
         HexCube b = new HexCube(0, 1, -1, Colour.BLUE, 0);
         HexCube sum = a.add(b);
-        HexCube diff = a.subtract(b);
 
         assertEquals(1, sum.q);
         assertEquals(0, sum.r);
         assertEquals(-1, sum.s);
+
+    }
+
+    @Test
+    public void testSubtract() {
+        HexCube a = new HexCube(1, -1, 0, Colour.RED, 0);
+        HexCube b = new HexCube(0, 1, -1, Colour.BLUE, 0);
+        HexCube diff = a.subtract(b);
 
         assertEquals(1, diff.q);
         assertEquals(-2, diff.r);
