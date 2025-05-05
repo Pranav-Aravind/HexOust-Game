@@ -74,12 +74,12 @@ public class GameManagerTest {
         GameManager.hexs.add(new HexCube(1, 0, -1, Colour.RED, 0));
 
 
-        HexCube redMove = new HexCube(0, -1, 1, Colour.WHITE, 0); // Uncolored
+        HexCube redMove = new HexCube(0, -1, 1, Colour.WHITE, 0);
         GameManager.hexs.add(redMove);
 
-        GameManager.removeStonesIfAny(redMove, true); // Simulate move
+        GameManager.removeStonesIfAny(redMove, true);
 
-        assertEquals(Colour.WHITE, blue.colour); // Blue should now be captured
+        assertEquals(Colour.WHITE, blue.colour);
     }
 
     @Test
@@ -132,7 +132,7 @@ public class GameManagerTest {
     @Test
     public void testGameStatus_InProgress() {
         GameManager.isGameOver = false;
-        GameManager.playerTurn = 1; // or 2, doesn't matter in this case
+        GameManager.playerTurn = 1;
         Text result = GameManager.gameStatus();
         assertEquals("To make a Move", result.getText());
     }
