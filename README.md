@@ -10,6 +10,7 @@ HexOust is played on a hexagonal grid where players aim to outmaneuver their opp
 - JavaFX interface: smooth hex coloring, interactive board, scoreboards, and restart functionality
 - Multiplayer support: local two-player mode
 - Modular, object-oriented design for maintainability
+- Unit tested to ensure smooth gameplay
 
 ## Technologies Used
 - Java
